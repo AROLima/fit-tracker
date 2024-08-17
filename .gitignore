@@ -1,0 +1,75 @@
+# Ambiente virtual
+venv/
+env/
+ENV/
+
+# Arquivos Python compilados
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribuição / empacotamento
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+
+# Arquivos de log
+*.log
+
+# Arquivos de banco de dados
+*.sqlite3
+*.db
+
+# Arquivos de configuração local
+*.ini
+config.py
+
+# Arquivos de IDE / editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos de ambiente
+.env
+
+# Arquivos de cache
+.cache/
+.pytest_cache/
+
+# Arquivos de cobertura de testes
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Arquivos de documentação
+docs/_build/
+
+# Arquivos de dependências
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Arquivos temporários
+*.tmp
+*.bak
+*.swp
+*~.nib
