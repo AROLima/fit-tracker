@@ -5,7 +5,7 @@ from database.db_operations import DatabaseManager
 
 def main():
     app = QApplication(sys.argv)
-    db_manager = DatabaseManager("your_db_name", "your_username", "your_password")
+    db_manager = DatabaseManager("alunos", "postgres", "546375")
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
