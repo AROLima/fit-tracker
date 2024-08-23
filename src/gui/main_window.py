@@ -1,16 +1,18 @@
-import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel, QComboBox
+from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel
 from PyQt5.QtChart import QChart, QChartView, QLineSeries
 from PyQt5.QtCore import Qt, QPointF
 from PyQt5.QtGui import QPainter
-from models.protocolo_treinamento import TipoProtocolo
+from .cadastro_aluno import CadastroAlunoDialog
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, db_manager):
         super().__init__()
+        self.db_manager = db_manager
         self.setWindowTitle("Sistema de Cadastro de Alunos")
         self.setGeometry(100, 100, 800, 600)
+        self.setup_ui()
 
+    def setup_ui(self):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
@@ -18,12 +20,8 @@ class MainWindow(QMainWindow):
         self.label = QLabel("Bem-vindo ao Sistema de Cadastro de Alunos")
         layout.addWidget(self.label)
 
-        self.protocolo_combo = QComboBox()
-        self.protocolo_combo.addItems([tipo.value for tipo in TipoProtocolo])
-        layout.addWidget(self.protocolo_combo)
-
         self.add_aluno_button = QPushButton("Adicionar Aluno")
-        self.add_aluno_button.clicked.connect(self.add_aluno)
+        self.add_aluno_button.clicked.connect(self.open_cadastro_aluno)
         layout.addWidget(self.add_aluno_button)
 
         self.view_alunos_button = QPushButton("Ver Alunos")
@@ -44,15 +42,17 @@ class MainWindow(QMainWindow):
         chart_view.setRenderHint(QPainter.Antialiasing)
         layout.addWidget(chart_view)
 
-    def add_aluno(self):
-        protocolo_selecionado = TipoProtocolo(self.protocolo_combo.currentText())
-        print(f"Adicionar aluno com protocolo: {protocolo_selecionado.value}")
+    def open_cadastro_aluno(self):
+        dialog = CadastroAlunoDialog(self)
+        dialog.aluno_cadastrado.connect(self.cadastrar_aluno)
+        dialog.exec_()
+
+    def cadastrar_aluno(self, aluno_data):
+        try:
+            aluno_id = self.db_manager.add_aluno(**aluno_data)
+            print(f"Aluno cadastrado com sucesso. ID: {aluno_id}")
+        except Exception as e:
+            print(f"Erro ao cadastrar aluno: {e}")
 
     def view_alunos(self):
-        print("Visualizar alunos")
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec_())
+        print("Funcionalidade de visualizar alunos ainda não implementada")
