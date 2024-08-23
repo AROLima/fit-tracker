@@ -90,3 +90,21 @@ class MainWindow(QMainWindow):
         self.stacked_widget.addWidget(detalhes_window)
         self.stacked_widget.setCurrentWidget(detalhes_window)
         self.back_button.show()
+
+    def view_aluno_details(self, aluno_id):
+        detalhes_window = DetalhesAlunoWindow(self.db_manager, aluno_id)
+        detalhes_window.aluno_excluido.connect(self.handle_aluno_excluido)
+        self.stacked_widget.addWidget(detalhes_window)
+        self.stacked_widget.setCurrentWidget(detalhes_window)
+        self.back_button.show()
+
+    def handle_aluno_excluido(self, aluno_id):
+        # Remover a janela de detalhes do aluno excluído
+        detalhes_widget = self.stacked_widget.currentWidget()
+        self.stacked_widget.removeWidget(detalhes_widget)
+        
+        # Atualizar a lista de alunos
+        self.lista_alunos_window.load_alunos()
+        
+        # Voltar para a lista de alunos
+        self.stacked_widget.setCurrentWidget(self.lista_alunos_window)

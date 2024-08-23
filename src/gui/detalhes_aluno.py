@@ -1,10 +1,12 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QPushButton
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QPushButton, QMessageBox
 from PyQt5.QtChart import QChart, QChartView, QLineSeries, QDateTimeAxis, QValueAxis
-from PyQt5.QtCore import Qt, QDateTime
+from PyQt5.QtCore import Qt, QDateTime, pyqtSignal
 from PyQt5.QtGui import QPainter
 from .atualizar_aluno import AtualizarAlunoDialog
 
 class DetalhesAlunoWindow(QWidget):
+    aluno_excluido = pyqtSignal(int)
+
     def __init__(self, db_manager, aluno_id):
         super().__init__()
         self.db_manager = db_manager
@@ -25,9 +27,17 @@ class DetalhesAlunoWindow(QWidget):
         self.chart_view = QChartView()
         layout.addWidget(self.chart_view)
 
+        button_layout = QHBoxLayout()
+        
         self.atualizar_button = QPushButton("Atualizar Medidas")
         self.atualizar_button.clicked.connect(self.abrir_atualizar_dialog)
-        layout.addWidget(self.atualizar_button)
+        button_layout.addWidget(self.atualizar_button)
+
+        self.excluir_button = QPushButton("Excluir Aluno")
+        self.excluir_button.clicked.connect(self.confirmar_exclusao)
+        button_layout.addWidget(self.excluir_button)
+
+        layout.addLayout(button_layout)
 
         self.carregar_dados_aluno()
 
@@ -83,20 +93,8 @@ class DetalhesAlunoWindow(QWidget):
         self.chart_view.setChart(chart)
 
     def abrir_atualizar_dialog(self):
-        print("Iniciando abrir_atualizar_dialog")
-        print(f"self.db_manager: {self.db_manager}")
-        print(f"Métodos disponíveis em self.db_manager: {dir(self.db_manager)}")
-        
         aluno_data = self.db_manager.get_aluno(self.aluno_id)
-        print(f"aluno_data: {aluno_data}")
-        
-        try:
-            ultima_medicao = self.db_manager.get_ultima_medicao(self.aluno_id)
-            print(f"ultima_medicao: {ultima_medicao}")
-        except Exception as e:
-            print(f"Erro ao obter última medição: {e}")
-            import traceback
-            traceback.print_exc()
+        ultima_medicao = self.db_manager.get_ultima_medicao(self.aluno_id)
         
         dados_atuais = {
             'id': self.aluno_id,
@@ -118,3 +116,19 @@ class DetalhesAlunoWindow(QWidget):
             percentual_gordura=dados_atualizados['percentual_gordura']
         )
         self.carregar_dados_aluno()
+
+    def confirmar_exclusao(self):
+        reply = QMessageBox.question(self, 'Confirmar Exclusão',
+                                     "Tem certeza que deseja excluir este aluno? Esta ação não pode ser desfeita.",
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        
+        if reply == QMessageBox.Yes:
+            self.excluir_aluno()
+
+    def excluir_aluno(self):
+        if self.db_manager.delete_aluno(self.aluno_id):
+            QMessageBox.information(self, "Sucesso", "Aluno excluído com sucesso.")
+            self.aluno_excluido.emit(self.aluno_id)
+            self.close()
+        else:
+            QMessageBox.warning(self, "Erro", "Não foi possível excluir o aluno.")

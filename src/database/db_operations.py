@@ -7,6 +7,7 @@ class DatabaseManager:
         self.cur = self.conn.cursor()
         self.create_tables()
 
+        #criando as tabelas
     def create_tables(self):
         create_alunos_table = """
         CREATE TABLE IF NOT EXISTS alunos (
@@ -101,6 +102,21 @@ class DatabaseManager:
         """
         self.cur.execute(query, (aluno_id, data, peso, altura, imc, percentual_gordura))
         self.conn.commit()
+
+    def delete_aluno(self, aluno_id):
+        try:
+            # Primeiro, excluir todas as medições associadas ao aluno
+            self.cur.execute("DELETE FROM medicoes WHERE aluno_id = %s", (aluno_id,))
+            
+            # Em seguida, excluímos o aluno
+            self.cur.execute("DELETE FROM alunos WHERE id = %s", (aluno_id,))
+            
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print(f"Erro ao excluir aluno: {e}")
+            self.conn.rollback()
+            return False
 
     def close(self):
         self.cur.close()
