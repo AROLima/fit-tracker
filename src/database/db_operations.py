@@ -54,6 +54,54 @@ class DatabaseManager:
         self.conn.commit()
         return aluno_id
 
+
+        ##read
+    def get_all_alunos(self):
+        query = "SELECT id, nome, idade, genero FROM alunos"
+        self.cur.execute(query)
+        return self.cur.fetchall()
+
+    def get_aluno(self, aluno_id):
+        query = "SELECT * FROM alunos WHERE id = %s"
+        self.cur.execute(query, (aluno_id,))
+        return self.cur.fetchone()
+
+    def get_aluno_measurements(self, aluno_id):
+        query = """
+        SELECT data, peso, altura, imc, percentual_gordura
+        FROM medicoes
+        WHERE aluno_id = %s
+        ORDER BY data
+        """
+        self.cur.execute(query, (aluno_id,))
+        return self.cur.fetchall()
+
+    # Adicione este método para depuração
+    def debug_print_medicoes(self, aluno_id):
+        medicoes = self.get_aluno_measurements(aluno_id)
+        print(f"Medições para aluno ID {aluno_id}:")
+        for medicao in medicoes:
+            print(medicao)
+
+    def get_ultima_medicao(self, aluno_id):
+        query = """
+        SELECT * FROM medicoes
+        WHERE aluno_id = %s
+        ORDER BY data DESC
+        LIMIT 1
+        """
+        self.cur.execute(query, (aluno_id,))
+        return self.cur.fetchone()
+
+    def add_medicao(self, aluno_id, data, peso, altura, percentual_gordura):
+        imc = peso / (altura ** 2)
+        query = """
+        INSERT INTO medicoes (aluno_id, data, peso, altura, imc, percentual_gordura)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        self.cur.execute(query, (aluno_id, data, peso, altura, imc, percentual_gordura))
+        self.conn.commit()
+
     def close(self):
         self.cur.close()
         self.conn.close()
